@@ -1,0 +1,41 @@
+{
+  "id": "PRC-010",
+  "title": "Fast, reliable feedback loops are the precondition for useful agents",
+  "area": "feedback-loops",
+  "kind": "pattern",
+  "maturity": "established",
+  "statement": "Before expecting an agent to work autonomously on a codebase, make its feedback loop fast and reliable (quick tests, good error messages), because an agent is only as good as the signal it gets and a slow suite starves it.",
+  "rationale": "Agents improve by hypothesizing, acting, and checking. If the check is slow or flaky, the loop either crawls or learns from noise. Speeding tests and improving error messages compounds across every later iteration.",
+  "applies_when": [
+    "Applying agents to an existing codebase",
+    "The test suite is slow, serial, or flaky"
+  ],
+  "not_when": [
+    "There is genuinely no automatable feedback signal for the task"
+  ],
+  "how": [
+    "Make the suite fast first (parallelize, cut long polls) before adding coverage",
+    "Fix uninformative error messages, since they are the agent's feedback",
+    "Prefer deterministic checks the agent can run itself each iteration"
+  ],
+  "check": "How many times per hour can the agent get a full pass/fail signal? If it is single digits, the loop is starved.",
+  "failure_if_absent": "The agent iterates slowly or optimizes against a noisy signal, and autonomous work is impractical.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "incident-postmortem",
+      "title": "agent-failure-modes INC-0003 - a slow test suite makes a product unbuildable by the loop",
+      "locator": "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md",
+      "date": "2026-08-13",
+      "quote": "If a suite approaches the per-step timeout, the product is unbuildable by the loop; fix the SUITE, and put the fix in a config all call sites inherit",
+      "note": "First-party incident corpus: when the suite approaches the per-step cap, the loop cannot build the product at all - speed is a precondition, not an optimization."
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "tests",
+    "feedback",
+    "brownfield"
+  ]
+}

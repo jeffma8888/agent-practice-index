@@ -1,0 +1,22 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.12
+      - run: uv venv
+      - run: uv pip install -e . pytest pytest-xdist
+      - name: Tests
+        run: uv run pytest
+      - name: Validate register
+        run: uv run practice validate .
+      - name: Leak scan (structural rules; positional path)
+        run: python3 tools/leakscan.py .

@@ -1,0 +1,40 @@
+{
+  "id": "PRC-011",
+  "title": "Sandbox autonomy; keep production behind a human gate",
+  "area": "sandbox-safety",
+  "kind": "guardrail",
+  "maturity": "established",
+  "statement": "Let agents try, fail, and retry freely inside a constrained environment, but require a human in the loop before anything reaches production; autonomy should come from the sandbox, not from trust.",
+  "rationale": "An agent can safely be aggressive when its blast radius is bounded. The danger is not experimentation but unreviewed side effects on real systems, so the boundary belongs at the production edge, not at the agent's initiative.",
+  "applies_when": [
+    "Agents can execute code, deploy, or mutate state",
+    "Work touches anything externally visible"
+  ],
+  "not_when": [
+    "Purely read-only analysis with no side effects"
+  ],
+  "how": [
+    "Run loops on developer machines / sandboxes only",
+    "Require second-person review for credentials that can mutate production state",
+    "Keep permission prompts on; treat a caught over-reach as the guardrail working"
+  ],
+  "check": "Can the loop cause an externally-visible effect without a human approving it? If yes, the gate is missing.",
+  "failure_if_absent": "An agent's mistake escapes the sandbox and changes a real system before anyone reviews it.",
+  "impact": 5,
+  "effort": 4,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Building Effective Agents (testing in sandboxes)",
+      "locator": "https://www.anthropic.com/engineering/building-effective-agents",
+      "date": "2024-12-19",
+      "quote": "We recommend extensive testing in sandboxed environments, along with the appropriate guardrails"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "sandbox",
+    "human-in-the-loop",
+    "safety"
+  ]
+}

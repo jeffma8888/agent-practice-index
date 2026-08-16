@@ -1,0 +1,39 @@
+{
+  "id": "PRC-005",
+  "title": "Isolate deep sub-work in sub-agents that return only a distilled summary",
+  "area": "multi-agent",
+  "kind": "pattern",
+  "maturity": "consolidating",
+  "statement": "For complex research or exploration, delegate deep work to sub-agents with clean context windows and have each return only a condensed summary (roughly 1,000-2,000 tokens), so the lead agent synthesizes results without inheriting the detailed search context.",
+  "rationale": "Separation of concerns keeps the lead agent's window clean: the expensive exploration stays isolated, and only its conclusion crosses back, which scales better than one agent holding all state.",
+  "applies_when": [
+    "Parallelizable exploration or research subtasks",
+    "One agent would otherwise blow its window holding all sub-results"
+  ],
+  "not_when": [
+    "Tasks needing tight back-and-forth where hand-off overhead dominates (prefer compaction there)"
+  ],
+  "how": [
+    "Give the lead agent a high-level plan and spawn sub-agents for focused subtasks",
+    "Constrain each sub-agent to return a short distilled summary, not its raw trace",
+    "Let the lead agent synthesize the summaries"
+  ],
+  "check": "Does each sub-agent return a bounded summary rather than its full transcript? If the lead agent sees raw sub-traces, isolation is not happening.",
+  "failure_if_absent": "A single agent's window fills with exploration detail and it loses the thread of the overall task.",
+  "impact": 4,
+  "effort": 2,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Effective context engineering (sub-agent architectures)",
+      "locator": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "date": "2025-09-29",
+      "quote": "returns only a condensed, distilled summary of its work (often 1,000-2,000 tokens)"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "sub-agents",
+    "multi-agent"
+  ]
+}

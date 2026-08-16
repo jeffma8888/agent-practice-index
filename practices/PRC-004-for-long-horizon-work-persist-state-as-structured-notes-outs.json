@@ -1,0 +1,40 @@
+{
+  "id": "PRC-004",
+  "title": "For long-horizon work, persist state as structured notes outside the context window",
+  "area": "memory-state",
+  "kind": "pattern",
+  "maturity": "consolidating",
+  "statement": "On tasks that exceed one context window, have the agent write structured notes to durable storage (a NOTES.md, a to-do list, a ledger) and read them back after a reset, so progress and decisions survive compaction.",
+  "rationale": "Working memory is bounded and lossy across resets. Externalizing state to files gives persistent memory at minimal overhead and lets the agent resume multi-hour tasks coherently.",
+  "applies_when": [
+    "Tasks spanning many tool calls or multiple sessions",
+    "Work must survive a context reset or compaction"
+  ],
+  "not_when": [
+    "Short tasks that complete well within one window"
+  ],
+  "how": [
+    "Have the agent maintain a notes/progress file as it works",
+    "Reload the notes into context after a reset instead of relying on retained history",
+    "Keep the notes structured (decisions, open problems, next step) rather than free narrative"
+  ],
+  "check": "After a simulated context reset, can the agent resume correctly from its own notes alone? If not, its memory is not durable.",
+  "failure_if_absent": "An agent forgets decisions and repeats or contradicts earlier work once the original context is summarized away.",
+  "impact": 4,
+  "effort": 4,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Effective context engineering (structured note-taking)",
+      "locator": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "date": "2025-09-29",
+      "quote": "your custom agent maintaining a NOTES.md file, this simple pattern allows the agent to track progress across complex tasks, maintaining critical context and dependencies that would otherwise be lost across dozens of tool calls"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "memory",
+    "notes",
+    "long-horizon"
+  ]
+}

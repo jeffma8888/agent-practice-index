@@ -1,0 +1,40 @@
+{
+  "id": "PRC-008",
+  "title": "Write a minimal complete artifact first, then refine in place (checkpoint-first)",
+  "area": "verification-gates",
+  "kind": "pattern",
+  "maturity": "consolidating",
+  "statement": "Under any hard wall-clock cap, have each step emit a schema-valid minimal complete output within the first seconds and then improve it in place, so a kill degrades quality instead of destroying the step.",
+  "rationale": "Runtimes often impose a per-step timeout the author did not set. If work is written only at the end, a kill loses everything; if a minimal artifact exists early, the same kill costs only the refinement.",
+  "applies_when": [
+    "Steps run under a per-step or per-stage timeout",
+    "Losing a step's work is expensive"
+  ],
+  "not_when": [
+    "Trivially short steps that always finish well under the cap"
+  ],
+  "how": [
+    "Have the step write a minimal valid output immediately",
+    "Refine that same file in place for the rest of the budget",
+    "Report the per-step duration DISTRIBUTION so a chronically over-budget step is visible"
+  ],
+  "check": "If a step is killed at a random time, does a valid (if rough) output already exist on disk? If not, it is not checkpoint-first.",
+  "failure_if_absent": "A step that was still composing its answer when the timeout fired scores as producing nothing, and hours of correct work are lost.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "incident-postmortem",
+      "title": "agent-failure-modes INC-0002 - the hard per-step wall-clock cap",
+      "locator": "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md",
+      "date": "2026-08-13",
+      "quote": "A per-step timeout you did not set is often the real timeout. If a step's attempt logs are all the same tiny size, its median is AT the cap, not near it. Fix: write-early checkpoint"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "checkpoint",
+    "timeout",
+    "durability"
+  ]
+}

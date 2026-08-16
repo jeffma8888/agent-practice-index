@@ -1,0 +1,48 @@
+{
+  "id": "PRC-006",
+  "title": "One task per loop iteration, with a fresh context each time",
+  "area": "loop-architecture",
+  "kind": "pattern",
+  "maturity": "consolidating",
+  "statement": "In an autonomous build loop, do exactly one task per iteration and spawn a fresh instance each time, keeping per-iteration context as small as possible, because output quality falls as the window fills.",
+  "rationale": "A single monolithic process doing one thing per loop avoids the non-determinism of many chattering agents, and a fresh window each iteration sidesteps context rot. Memory persists on disk between iterations, not in a growing window.",
+  "applies_when": [
+    "Running a Ralph-style or factory-style unattended loop",
+    "Tasks can be decomposed into small independently-completable units"
+  ],
+  "not_when": [
+    "A single interactive session where the human is steering turn by turn"
+  ],
+  "how": [
+    "Scope each task to well under the usable context window",
+    "Persist plan and progress to files so a fresh instance can resume",
+    "Narrow back to strictly one item per loop the moment output degrades"
+  ],
+  "check": "Does each iteration start a fresh instance and complete one scoped task, with state carried on disk rather than in a growing context? If iterations share a ballooning window, this is violated.",
+  "failure_if_absent": "Iterations accumulate context, quality clips at the window limit, and the loop produces progressively worse code.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "practitioner-report",
+      "title": "Geoffrey Huntley - Ralph Wiggum as a software engineer",
+      "locator": "https://ghuntley.com/ralph/",
+      "date": "2025-07-13",
+      "quote": "one item per loopOne item per loop. I need to repeat myself here—one item per loop",
+      "note": "Huntley's Ralph technique; the doubled phrase is an artifact of headings being concatenated in extraction, but the instruction is verbatim."
+    },
+    {
+      "source_class": "practitioner-report",
+      "title": "Ralph - context window sizing",
+      "locator": "https://ghuntley.com/ralph/",
+      "date": "2025-07-13",
+      "quote": "you only have approximately 170k of context window to work with. So it's essential to use as little of it as possible. The more you use the context window, the worse the outcomes you'll get"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "ralph",
+    "one-item-per-loop",
+    "fresh-context"
+  ]
+}

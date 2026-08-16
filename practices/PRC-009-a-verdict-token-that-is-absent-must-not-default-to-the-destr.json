@@ -1,0 +1,40 @@
+{
+  "id": "PRC-009",
+  "title": "A verdict token that is absent must not default to the destructive answer",
+  "area": "verification-gates",
+  "kind": "guardrail",
+  "maturity": "consolidating",
+  "statement": "When a machine-parsed verdict decides ship-versus-revert, never let a missing token default to the destructive outcome; write the verdict early on decisive evidence and budget verification so a timeout cannot erase it.",
+  "rationale": "A verification stage under a hard cap can die before emitting its token. If absence is read as revert, correct all-green work is destroyed by a clock, not a judgment.",
+  "applies_when": [
+    "A gate parses a token to decide accept/reject",
+    "The gate runs under a time limit"
+  ],
+  "not_when": [
+    "No automated verdict is parsed (a human decides)"
+  ],
+  "how": [
+    "Decide on decisive evidence only (suite result plus tree state) and write the token by a wall-clock deadline",
+    "Make the safe outcome the default when the token is absent, or fail into a hold state, not a destroy state",
+    "Keep lower-priority audits as follow-ups, not preconditions for the verdict"
+  ],
+  "check": "If the verdict stage is killed before writing anything, what happens? If the answer is 'the work is reverted', the default is unsafe.",
+  "failure_if_absent": "Green, shippable work is silently reverted because the gate ran out of time before saying 'ship'.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "incident-postmortem",
+      "title": "agent-failure-modes INC-0005 - a killed step with no verdict token is read as reverted",
+      "locator": "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md",
+      "date": "2026-08-13",
+      "quote": "A machine-parsed verdict token that defaults to the destructive answer on absence is a critical safety hazard when its writer runs under a hard timeout"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "verdict",
+    "fail-safe",
+    "revert"
+  ]
+}

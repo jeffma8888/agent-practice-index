@@ -1,0 +1,40 @@
+{
+  "id": "PRC-002",
+  "title": "An agent is LLMs using tools in a loop on environmental feedback - design the tools accordingly",
+  "area": "tool-interface",
+  "kind": "pattern",
+  "maturity": "established",
+  "statement": "Treat an agent as an LLM calling tools in a loop against environmental feedback, and invest in the agent-computer interface (clear tool docs, unambiguous parameters, poka-yoke arguments) as heavily as the prompt itself.",
+  "rationale": "Because the loop is just tool call then observe, tool quality bounds agent quality. Ambiguous or error-prone tools produce compounding mistakes that no amount of prompt tuning fixes.",
+  "applies_when": [
+    "Building any tool-using agent",
+    "The agent has more than a couple of tools"
+  ],
+  "not_when": [
+    "A pure single-shot generation task with no tools"
+  ],
+  "how": [
+    "Write each tool's description like a docstring for a junior developer, with example usage and edge cases",
+    "Remove tools with overlapping purpose; if a human cannot say which tool applies, neither can the model",
+    "Change arguments so mistakes are hard to make (e.g. require absolute paths, not relative)"
+  ],
+  "check": "For each tool, can a new engineer say from the description alone exactly when to use it and not confuse it with another? If not, the tool set is a failure source.",
+  "failure_if_absent": "The agent picks the wrong tool, mis-formats arguments, and accumulates errors that look like model weakness but are interface weakness.",
+  "impact": 4,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Building Effective Agents",
+      "locator": "https://www.anthropic.com/engineering/building-effective-agents",
+      "date": "2024-12-19",
+      "quote": "They are typically just LLMs using tools based on environmental feedback in a loop. It is therefore crucial to design toolsets and their documentation clearly and thoughtfully",
+      "note": "The appendix reports they spent more time optimizing tools than the overall prompt on SWE-bench."
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "tools",
+    "ACI"
+  ]
+}

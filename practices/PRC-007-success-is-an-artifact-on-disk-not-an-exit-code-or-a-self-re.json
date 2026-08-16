@@ -1,0 +1,41 @@
+{
+  "id": "PRC-007",
+  "title": "Success is an artifact on disk, not an exit code or a self-report",
+  "area": "verification-gates",
+  "kind": "guardrail",
+  "maturity": "established",
+  "statement": "Decide whether a stage succeeded by checking for a concrete artifact it was required to produce, never by trusting its exit code or the agent's own claim of success.",
+  "rationale": "Agents and shells both report success unreliably; a stage can exit zero having produced nothing. An artifact that must exist is a fact the harness can check independently of anything the agent says.",
+  "applies_when": [
+    "Any orchestrated multi-stage loop",
+    "Stages run unattended under time limits"
+  ],
+  "not_when": [
+    "A human is watching every stage and can judge output directly"
+  ],
+  "how": [
+    "Define each stage's required output file up front",
+    "Treat the stage as failed unless that file exists and is non-empty",
+    "Never call a timeout a failure without first checking whether the output file exists"
+  ],
+  "check": "Does the orchestrator gate on os.path.exists of a declared artifact rather than on the return code? If it reads exit codes or parses agent prose, it is trusting the wrong signal.",
+  "failure_if_absent": "Empty or partial work is recorded as shipped, and a killed-but-complete stage is wrongly discarded.",
+  "impact": 5,
+  "effort": 4,
+  "evidence": [
+    {
+      "source_class": "incident-postmortem",
+      "title": "agent-failure-modes INC-0006 - checkpoint-first",
+      "locator": "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md",
+      "date": "2026-08-13",
+      "quote": "Success is an ARTIFACT, not an exit code. Under a hard timeout, an agent that writes its minimal complete output first and refines in place still succeeds if killed.",
+      "note": "First-party corpus of loop failures; this rule is derived from a specific incident."
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "artifacts",
+    "verification",
+    "durability"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "PRC-001",
+  "title": "Start with the simplest thing that works; add agentic complexity only when it demonstrably helps",
+  "area": "loop-architecture",
+  "kind": "pattern",
+  "maturity": "established",
+  "statement": "Reach for the simplest design first (a single call, a fixed workflow) and add autonomous-agent complexity only when a simpler solution demonstrably falls short, because agency trades latency and cost for flexibility you may not need.",
+  "rationale": "Autonomous loops add latency, token cost, and compounding-error risk. If a task decomposes into fixed steps, a workflow is more predictable and cheaper; agency only pays off when the path cannot be predicted in advance.",
+  "applies_when": [
+    "Designing any new LLM feature or loop",
+    "The task's steps are largely predictable",
+    "Latency and cost matter"
+  ],
+  "not_when": [
+    "The number and nature of steps genuinely cannot be predicted (then an agent is warranted)"
+  ],
+  "how": [
+    "State the task as a fixed workflow first and see if it suffices",
+    "Introduce dynamic tool-use/looping only against a measured shortfall of the workflow",
+    "Keep the agent-computer interface small and well-documented if you do go agentic"
+  ],
+  "check": "Can you point to a measured failure of a simpler workflow that justifies the current agentic complexity? If not, it is unjustified.",
+  "failure_if_absent": "Teams build multi-step autonomous systems where a single optimized call would have been cheaper, faster, and easier to debug.",
+  "impact": 4,
+  "effort": 4,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Building Effective Agents",
+      "locator": "https://www.anthropic.com/engineering/building-effective-agents",
+      "date": "2024-12-19",
+      "quote": "we recommend finding the simplest solution possible, and only increasing complexity when needed",
+      "note": "Anthropic's summarized first principle: build the right system, not the most sophisticated one."
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "workflow-vs-agent",
+    "simplicity"
+  ]
+}

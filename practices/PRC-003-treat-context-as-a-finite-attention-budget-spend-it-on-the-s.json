@@ -1,0 +1,47 @@
+{
+  "id": "PRC-003",
+  "title": "Treat context as a finite attention budget; spend it on the smallest high-signal set",
+  "area": "context-engineering",
+  "kind": "pattern",
+  "maturity": "consolidating",
+  "statement": "Curate the context window as a finite attention budget: find the smallest set of high-signal tokens that produce the desired behavior, rather than stuffing in everything that might be relevant, because recall degrades as the window fills (context rot).",
+  "rationale": "Transformer attention creates n-squared pairwise relationships, so every added token dilutes focus. More context is not monotonically better; beyond a point it reduces reliable recall.",
+  "applies_when": [
+    "Any multi-turn or long-horizon agent",
+    "Prompts or histories are growing over time"
+  ],
+  "not_when": [
+    "A short single-shot task well within the model's comfortable window"
+  ],
+  "how": [
+    "Prefer minimal, high-signal system prompts at the right altitude (neither brittle hardcoded logic nor vague guidance)",
+    "Use a small, curated set of canonical examples rather than an exhaustive edge-case list",
+    "Prune tool results and stale history that no longer inform the next decision"
+  ],
+  "check": "Is anything in the current context there because it MIGHT be relevant rather than because it is high-signal for the next step? That is budget you are wasting.",
+  "failure_if_absent": "Long-running agents lose focus and recall as the window fills, and quality degrades in ways that look random.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Effective context engineering for AI agents",
+      "locator": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "date": "2025-09-29",
+      "quote": "Context, therefore, must be treated as a finite resource with diminishing marginal returns",
+      "note": "Same post introduces context rot: recall decreases as token count rises."
+    },
+    {
+      "source_class": "vendor-primary",
+      "title": "Anthropic - Effective context engineering (attention budget)",
+      "locator": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "date": "2025-09-29",
+      "quote": "finding the smallest possible set of high-signal tokens that maximize the likelihood of some desired outcome"
+    }
+  ],
+  "as_of": "2026-08-16",
+  "tags": [
+    "context-rot",
+    "attention-budget"
+  ]
+}
