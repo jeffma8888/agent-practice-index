@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "0 14 * * 1"   # Mondays: link-rot + freshness are time-decay problems
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,9 +16,20 @@ jobs:
       - run: uv python install 3.12
       - run: uv venv
       - run: uv pip install -e . pytest pytest-xdist
-      - name: Tests
+      - name: Tests (offline by contract)
         run: uv run pytest
       - name: Validate register
         run: uv run practice validate .
       - name: Leak scan (structural rules; positional path)
         run: python3 tools/leakscan.py .
+      - name: Freshness (fails when a record is past its review horizon)
+        run: uv run practice stale . --fail-if-stale
+  locators:
+    # Network-dependent, so kept OUT of the test job: a broken blog must not
+    # make the unit suite red. Runs on the schedule and on pushes to main.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every citation still resolves
+        run: python3 tools/check_locators.py practices

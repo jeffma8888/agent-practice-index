@@ -36,6 +36,7 @@
   "tags": [
     "artifacts",
     "verification",
-    "durability"
+    "durability",
+    "gap:GAP-003"
   ]
 }

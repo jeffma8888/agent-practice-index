@@ -1,0 +1,44 @@
+{
+  "id": "PRC-012",
+  "title": "A gate is only a gate if all six structural conditions hold; otherwise it is advice",
+  "area": "verification-gates",
+  "kind": "guardrail",
+  "maturity": "consolidating",
+  "statement": "Treat a check as a real gate only when its call site is in the harness (not the prompt), it runs unconditionally, it fails closed, its evidence comes from the harness rather than the agent, it sits outside anything the agent can edit, and it has been proved two-sided on a known-bad sample; drop any one and it is silently advisory.",
+  "rationale": "Each condition closes a distinct route by which a model can skip, weaken, or route around a check. A gate missing any one still LOOKS enforced in the code and the logs, which is worse than having no gate, because it earns unwarranted trust.",
+  "applies_when": [
+    "Any automated ship/revert, merge, deploy, or publish decision in an agent loop",
+    "A check is described as 'the agent will run X before Y'"
+  ],
+  "not_when": [
+    "Purely advisory review where a human makes the final call anyway"
+  ],
+  "how": [
+    "Move the check's invocation from the prompt into orchestrator code the agent cannot edit",
+    "Make its default outcome the safe branch when it produces no verdict",
+    "Have the harness produce the evidence (run the suite, read the tree) rather than parsing the agent's claim",
+    "Plant a known-bad sample and confirm the gate fires; confirm it stays quiet on a known-good one"
+  ],
+  "check": "For each gate, list the six conditions and mark each true or false from the code, not the docs; any false means the gate is advisory.",
+  "failure_if_absent": "Checks that appear enforced are skipped, weakened, or routed around by the model, and the loop ships work nothing actually verified.",
+  "impact": 5,
+  "effort": 3,
+  "evidence": [
+    {
+      "source_class": "incident-postmortem",
+      "title": "agent-failure-modes PRA-0003 (derived from INC-0005, INC-0018, INC-0019)",
+      "locator": "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md",
+      "date": "2026-08-16",
+      "quote": "A gate runs always only if ALL six hold: its call site is in the harness and not in the prompt; invocation is unconditional; the default is fail-closed; the evidence is produced by the harness rather than reported by the agent; the gate sits outside the surface the agent can edit; and it has been proved two-sided against a known-bad sample. Drop any one and the gate silently becomes advisory.",
+      "note": "Cross-incident practice distilled in the sibling incident register; three independent incidents converge on the same six conditions."
+    }
+  ],
+  "as_of": "2026-09-04",
+  "tags": [
+    "pra-0003",
+    "from-incident-rules",
+    "gap:GAP-006",
+    "gates",
+    "fail-closed"
+  ]
+}

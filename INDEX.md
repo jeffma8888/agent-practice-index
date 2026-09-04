@@ -1,6 +1,6 @@
 # Agent practice index
 
-Generated 2026-08-16 from 11 records. Ranked by adoption value; confidence floor 2.
+Generated 2026-09-04 from 12 records. Ranked by adoption value; confidence floor 2.
 
 | Practice | Value | Conf | Area | Kind | Maturity | Verified |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -11,6 +11,7 @@ Generated 2026-08-16 from 11 records. Ranked by adoption value; confidence floor
 | PRC-008 Write a minimal complete artifact first, then refine in place (checkpoint-first) | 9.0 | 5 | verification-gates | pattern | consolidating | 2026-08-16 |
 | PRC-009 A verdict token that is absent must not default to the destructive answer | 9.0 | 5 | verification-gates | guardrail | consolidating | 2026-08-16 |
 | PRC-010 Fast, reliable feedback loops are the precondition for useful agents | 9.0 | 5 | feedback-loops | pattern | established | 2026-08-16 |
+| PRC-012 A gate is only a gate if all six structural conditions hold; otherwise it is advice | 9.0 | 5 | verification-gates | guardrail | consolidating | 2026-09-04 |
 | PRC-001 Start with the simplest thing that works; add agentic complexity only when it demonstrably helps | 8.0 | 3 | loop-architecture | pattern | established | 2026-08-16 |
 | PRC-004 For long-horizon work, persist state as structured notes outside the context window | 8.0 | 3 | memory-state | pattern | consolidating | 2026-08-16 |
 | PRC-002 An agent is LLMs using tools in a loop on environmental feedback - design the tools accordingly | 7.5 | 3 | tool-interface | pattern | established | 2026-08-16 |
@@ -25,6 +26,7 @@ Generated 2026-08-16 from 11 records. Ranked by adoption value; confidence floor
 - **PRC-008** Under any hard wall-clock cap, have each step emit a schema-valid minimal complete output within the first seconds and then improve it in place, so a kill degrades quality instead of destroying the step.
 - **PRC-009** When a machine-parsed verdict decides ship-versus-revert, never let a missing token default to the destructive outcome; write the verdict early on decisive evidence and budget verification so a timeout cannot erase it.
 - **PRC-010** Before expecting an agent to work autonomously on a codebase, make its feedback loop fast and reliable (quick tests, good error messages), because an agent is only as good as the signal it gets and a slow suite starves it.
+- **PRC-012** Treat a check as a real gate only when its call site is in the harness (not the prompt), it runs unconditionally, it fails closed, its evidence comes from the harness rather than the agent, it sits outside anything the agent can edit, and it has been proved two-sided on a known-bad sample; drop any one and it is silently advisory.
 - **PRC-001** Reach for the simplest design first (a single call, a fixed workflow) and add autonomous-agent complexity only when a simpler solution demonstrably falls short, because agency trades latency and cost for flexibility you may not need.
 - **PRC-004** On tasks that exceed one context window, have the agent write structured notes to durable storage (a NOTES.md, a to-do list, a ledger) and read them back after a reset, so progress and decisions survive compaction.
 - **PRC-002** Treat an agent as an LLM calling tools in a loop against environmental feedback, and invest in the agent-computer interface (clear tool docs, unambiguous parameters, poka-yoke arguments) as heavily as the prompt itself.
@@ -43,14 +45,14 @@ Generated 2026-08-16 from 11 records. Ranked by adoption value; confidence floor
 - observability: 0  <- no records yet
 - sandbox-safety: 1
 - tool-interface: 1
-- verification-gates: 3
+- verification-gates: 4
 
 ## Evidence base
 
 | Source class | Weight | Citations |
 | --- | --- | --- |
 | first-party-field | 5 | 0 |
-| incident-postmortem | 5 | 4 |
+| incident-postmortem | 5 | 5 |
 | peer-reviewed | 4 | 0 |
 | maintainer-primary | 4 | 0 |
 | vendor-primary | 3 | 7 |

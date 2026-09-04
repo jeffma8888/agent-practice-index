@@ -9,6 +9,7 @@ where "now" must never change the output.
 from __future__ import annotations
 
 import argparse
+import json
 import datetime as _dt
 import pathlib
 import sys
@@ -17,6 +18,7 @@ from . import __version__
 from .audit import audit_checklist
 from .digest import DEFAULT_BUDGET_CHARS, DEFAULT_BULLET_CHARS, build_digest
 from .freshness import due_date, freshness, marker, needs_review
+from .ingest import already_covered, draft_record, parse_rules
 from .prd import render_prd
 from .registry import RegistryError, find, load_all, practices_dir
 from .render import index_report, list_lines, practice_brief, taxonomy_doc
@@ -68,9 +70,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_list = sub.add_parser("list", help="One line per practice, ranked.")
     add_common(p_list)
     p_list.add_argument("--area", default=None, help="restrict to one area")
+    p_list.add_argument("--tag", default=None,
+                        help="restrict to records carrying this tag, e.g. gap:GAP-003")
     p_report = sub.add_parser("report", help="Full index report (markdown).")
     add_common(p_report)
     p_report.add_argument("--area", default=None, help="restrict to one area")
+    p_report.add_argument("--tag", default=None, help="restrict to one tag")
 
     p_show = sub.add_parser("show", help="Full brief for one practice (markdown).")
     p_show.add_argument("practice_id")
@@ -81,6 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
     add_common(p_digest)
     p_digest.add_argument("--max-chars", type=int, default=DEFAULT_BUDGET_CHARS)
     p_digest.add_argument("--max-per-bullet", type=int, default=DEFAULT_BULLET_CHARS)
+    p_digest.add_argument("--area", default=None, help="restrict to one area")
+    p_digest.add_argument("--tag", default=None, help="restrict to one tag")
 
     p_stale = sub.add_parser("stale", help="Records at or past their review horizon.")
     add_common(p_stale, floored=False)
@@ -93,6 +100,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_audit.add_argument("--target", default=None,
                          help="repo to audit (only used to note detected artifacts)")
     p_audit.add_argument("--area", default=None, help="restrict to one area")
+    p_audit.add_argument("--tag", default=None, help="restrict to one tag")
+
+    p_from = sub.add_parser(
+        "from-rules",
+        help="Draft records for agent-failure-modes PRA practices not yet in the index.")
+    p_from.add_argument("rules_md", help="path to agent-failure-modes RULES.md")
+    add_common(p_from, floored=False)
+    p_from.add_argument("--locator", default=(
+        "https://github.com/jeffma8888/agent-failure-modes/blob/main/RULES.md"))
 
     p_prd = sub.add_parser("prd", help="Emit a build-loop prd.json to adopt a practice.")
     add_common(p_prd, floored=False)
@@ -136,8 +152,13 @@ def main(argv: list[str] | None = None) -> int:
             f"{sum(len(p.evidence) for p in practices)} citations.\n")
         return 0
 
-    # area is validated above; None means no restriction.
+    # area is validated above; None means no restriction. tag is free-form on
+    # purpose: it is the cross-repo linking key (e.g. gap:GAP-003, pra-0003).
     scoped = [p for p in practices if p.area == area] if area else practices
+    tag = getattr(args, "tag", None)
+    if tag:
+        want = tag.lower()
+        scoped = [p for p in scoped if want in (x.lower() for x in p.tags)]
 
     if args.command == "list":
         sys.stdout.write(list_lines(scoped, today, floor=floor))
@@ -155,9 +176,30 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(practice_brief(practice, today))
         return 0
 
+    if args.command == "from-rules":
+        rules_path = pathlib.Path(args.rules_md).expanduser()
+        if not rules_path.is_file():
+            return _fail(f"rules file not found: {rules_path}")
+        sources = parse_rules(rules_path.read_text(encoding="utf-8"))
+        if not sources:
+            return _fail("no '## Practices' PRA bullets found in that RULES.md")
+        missing = [s for s in sources if not already_covered(s, practices)]
+        next_n = max(int(p.id.split("-")[1]) for p in practices) + 1
+        drafts = []
+        for offset, s in enumerate(missing):
+            drafts.append(draft_record(
+                s, f"PRC-{next_n + offset:03d}", args.locator, today.isoformat()))
+        sys.stderr.write(
+            f"{len(sources)} source practice(s); {len(sources) - len(missing)} already "
+            f"covered by tag; {len(drafts)} draft(s) emitted. Drafts FAIL validation "
+            f"until their DRAFT markers are replaced - complete them, then save under "
+            f"practices/.\n")
+        sys.stdout.write(json.dumps(drafts, indent=2, ensure_ascii=False) + "\n")
+        return 0
+
     if args.command == "digest":
         sys.stdout.write(build_digest(
-            practices, today, budget_chars=args.max_chars,
+            scoped, today, budget_chars=args.max_chars,
             bullet_chars=args.max_per_bullet, floor=floor))
         return 0
 
@@ -178,7 +220,7 @@ def main(argv: list[str] | None = None) -> int:
         if target is not None and not target.is_dir():
             return _fail(f"target {target} is not a directory")
         sys.stdout.write(audit_checklist(
-            practices, today, target=target, area=area, floor=floor))
+            scoped, today, target=target, area=None, floor=floor))
         return 0
 
     if args.command == "prd":

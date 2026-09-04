@@ -157,6 +157,18 @@ class Practice(BaseModel):
             raise ValueError(f"as_of must be YYYY-MM-DD, got {v!r}")
         return v
 
+    @field_validator("check")
+    @classmethod
+    def _check_is_finished(cls, v: str) -> str:
+        # A draft produced by  carries this marker until a
+        # person or agent replaces it with a real mechanical check. Rejecting it
+        # here is what keeps an unread draft out of the register.
+        if "DRAFT-FROM-INCIDENT-RULES" in v:
+            raise ValueError(
+                "check still carries the ingest draft marker; replace it with a "
+                "one-sentence mechanical check before adding this record")
+        return v
+
     @field_validator("statement")
     @classmethod
     def _statement_bounded(cls, v: str) -> str:

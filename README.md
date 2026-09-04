@@ -48,6 +48,18 @@ practice taxonomy            # the closed vocabularies + evidence ladder
 3. **Convert a gap into work.** `practice prd --practice <id>` emits a `prd.json` (project / branchName / userStories with `passes` flags) whose **first story is always a failing demonstration of the gap**, so a Ralph/foundry loop cannot mark a practice adopted without first observing the absence it claims to fix.
 4. **Keep it current.** Any agent may add or refresh a record (see below) and open a PR. `practice validate` + `practice stale` are the gates.
 
+## How it connects to the sibling repos
+
+This is not a standalone list; it is one stage in a pipeline. See **[ECOSYSTEM.md](ECOSYSTEM.md)** for the full data flow. The short version:
+
+```bash
+practice from-rules ../agent-failure-modes/RULES.md .   # incidents -> draft practices (seam 1)
+practice list . --tag gap:GAP-003                       # which practices address a gap-radar gap (seam 2)
+practice digest . && practice audit --target <loop-repo> .   # what a loop pins + checks itself against (seam 3)
+```
+
+Records from the incident register carry `pra-nnnn` tags; records that mitigate a registered gap carry `gap:GAP-NNN`. Both registers grade confidence on the same evidence ladder, so their numbers are comparable.
+
 ## Adding or updating a practice
 
 A record is one JSON file in [`practices/`](practices/) named `PRC-NNN-slug.json`. The schema ([`models.py`](src/agent_practice_index/models.py)) is enforced by `practice validate` and by the test suite:
@@ -69,7 +81,7 @@ practice validate .      # ids sequential, quotes present, cross-refs resolve
 python3 tools/leakscan.py .          # no internal / personal identifiers (positional path)
 ```
 
-## Seed register (11 records, v0.1)
+## Seed register (12 records, v0.1)
 
 Sources are public and primary: Anthropic's engineering posts on [building effective agents](https://www.anthropic.com/engineering/building-effective-agents) and [context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents), Geoffrey Huntley's [Ralph](https://ghuntley.com/ralph/) pattern, and first-party incident rules from `agent-failure-modes`. See [`INDEX.md`](INDEX.md) for the generated report and [`TAXONOMY.md`](TAXONOMY.md) for the vocabularies.
 
